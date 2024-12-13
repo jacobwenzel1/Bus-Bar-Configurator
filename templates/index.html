@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alltec Bus Bar Configurator</title>
+    <style>
+        .hole-pattern-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .hole-pattern {
+            margin: 10px;
+            cursor: pointer;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border 0.3s ease;
+        }
+
+        .hole-pattern img {
+            max-width: 100px;
+            max-height: 100px;
+            transition: transform 0.3s ease;
+        }
+
+        .hole-pattern img.enlarged {
+            transform: scale(2);
+            z-index: 10;
+        }
+
+        .hole-pattern:hover {
+            border: 2px solid yellow;
+        }
+
+        .hole-pattern.selected {
+            border: 2px solid green;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #hole-pattern-container {
+            margin-top: 20px;
+        }
+
+        #hole-image {
+            width: 300px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Part Number Generator</h1>
+        <form id="options-form">
+            <label for="material_finish">Material & Finish:</label>
+            <select id="material_finish" name="material_finish">
+                {% for option in options['material_finish'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="width">Width:</label>
+            <select id="width" name="width">
+                {% for option in options['width'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="length">Length:</label>
+            <select id="length" name="length">
+                {% for option in options['length'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <div id="hole-pattern-container">
+                <h3>Hole Patterns:</h3>
+                <div class="hole-pattern-container" id="hole-patterns">
+                    <!-- Hole patterns will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <label for="insulation_bracket">Insulation & Bracket:</label>
+            <select id="insulation_bracket" name="insulation_bracket">
+                {% for option in options['insulation_bracket'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="conductor_size">Conductor Size:</label>
+            <select id="conductor_size" name="conductor_size">
+                {% for option in options['conductor_size'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="conductor_length_location">Conductor Length & Location:</label>
+            <select id="conductor_length_location" name="conductor_length_location">
+                {% for option in options['conductor_length_location'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Generate Part Number</button>
+        </form>
+
+        <div id="result">
+            <h3>Generated Part Number:</h3>
+            <p id="part-number"></p>
+            <img id="hole-image" src="" alt="Hole Configuration Image" style="display:none;">
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            const holePatternsContainer = document.getElementById('hole-patterns');
+            let selectedHolePattern = '';
+
+            // Dynamically fetch hole patterns based on selected width
+            document.getElementById('width').addEventListener('change', function () {
+                const selectedWidth = this.value;
+
+                // Clear existing hole patterns
+                holePatternsContainer.innerHTML = '<p>Loading hole patterns...</p>';
+
+                // Fetch new hole patterns from the server
+                fetch('/get_hole_patterns', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `width=${selectedWidth}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        holePatternsContainer.innerHTML = ''; // Clear loader
+                        for (const [hole, img] of Object.entries(data)) {
+                            holePatternsContainer.innerHTML += `
+                                <label>
+                                    <input type="radio" name="hole_pattern" value="${hole}" style="display:none;">
+                                    <div class="hole-pattern" data-hole="${hole}">
+                                        <img src="${img}" alt="Pattern ${hole}">
+                                        <p>Pattern ${hole}</p>
+                                    </div>
+                                </label>
+                            `;
+                        }
+
+                        // Add click events for enlarging images and selecting
+                        document.querySelectorAll('.hole-pattern img').forEach(img => {
+                            img.addEventListener('click', function (event) {
+                                event.stopPropagation();
+                                this.classList.toggle('enlarged'); // Toggle enlarge class
+                            });
+                        });
+
+                        // Add click events for selecting patterns
+                        document.querySelectorAll('.hole-pattern').forEach(element => {
+                            element.addEventListener('click', function () {
+                                document.querySelectorAll('.hole-pattern').forEach(el => el.classList.remove('selected'));
+                                this.classList.add('selected');
+                                selectedHolePattern = this.getAttribute('data-hole');
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        holePatternsContainer.innerHTML = '<p>Error loading hole patterns. Please try again.</p>';
+                        console.error(error);
+                    });
+            });
+
+            document.getElementById('options-form').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const material_finish = document.getElementById('material_finish').value;
+                const width = document.getElementById('width').value;
+                const length = document.getElementById('length').value;
+                const insulation_bracket = document.getElementById('insulation_bracket').value;
+                const conductor_size = document.getElementById('conductor_size').value;
+                const conductor_length_location = document.getElementById('conductor_length_location').value;
+
+                if (!selectedHolePattern) {
+                    alert('Please select a hole pattern.');
+                    return;
+                }
+
+                fetch('/generate_part_number', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `material_finish=${material_finish}&width=${width}&length=${length}&hole_pattern=${selectedHolePattern}&insulation_bracket=${insulation_bracket}&conductor_size=${conductor_size}&conductor_length_location=${conductor_length_location}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('part-number').innerText = data.part_number;
+                        const holeImage = document.getElementById('hole-image');
+                        holeImage.src = data.hole_image;
+                        holeImage.style.display = 'block';
+                    });
+            });
+        </script>
+    </div>
+</body>
+</html>
