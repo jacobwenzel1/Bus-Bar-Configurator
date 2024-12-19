@@ -48,11 +48,10 @@ def generate_part_number():
     length = request.form.get('length')
     hole_pattern = request.form.get('hole_pattern')
     insulation_bracket = request.form.get('insulation_bracket')
-    conductor_size = request.form.get('conductor_size')
-    conductor_length_location = request.form.get('conductor_length_location')
+    
 
     # Dynamically generate part number
-    part_number = f"TB-{material_finish}-{width}-{length}-{hole_pattern}-{insulation_bracket}-{conductor_size}-{conductor_length_location}"
+    part_number = f"TB-{material_finish}-{width}-{length}-{hole_pattern}-{insulation_bracket}"
 
     # Fetch image URL based on hole pattern
     hole_image = f"static/images/pattern_{hole_pattern.zfill(2)}.jpg"
