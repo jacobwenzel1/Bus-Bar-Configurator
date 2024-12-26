@@ -45,7 +45,6 @@ pypiwin32==223
 pytesseract==0.3.10
 python-dateutil==2.9.0.post0
 pytz==2024.1
-pywin32==308
 pywin32-ctypes==0.2.2
 PyYAML==6.0.2
 requests==2.31.0
