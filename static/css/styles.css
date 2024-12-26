@@ -2,23 +2,24 @@ body {
     margin: 0;
     padding: 0;
     background-color: #0B3B60; 
-    color: #ffffff;
+    color: #e0e0e0;
     font-family: "Roboto", Arial, sans-serif;
     min-height: 100vh;
 }
 
 header {
     display: flex;
-    align-items: center;    /* Vertically center items */
-    justify-content: center;/* Horizontally center by default */
-    position: relative;     /* Needed for absolute positioning of logo */
-    height: 80px;           /* Adjust as needed */
+    align-items: center; /* Vertically center all content */
+    justify-content: space-between; /* Space out items */
+    position: relative;
     background-color: #0B3B60;
+    padding: 20px;
+    color: #ffffff;
 }
 
 .page-title {
     margin: 0;
-    font-size: 1.8em; /* Adjust as desired */
+    font-size: 2em;
     color: #ffffff;
 }
 
@@ -27,7 +28,7 @@ header {
     width: 100%;
     margin: 80px auto 20px auto; /* Add top margin to avoid overlapping with header */
     padding: 20px;
-    background-color: #ffffff;
+    background-color: #e0e0e0;
     color: #333;
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -74,9 +75,17 @@ select, button {
     max-width: 300px;
 }
 
+.instructions {
+    margin-top: 10px;
+    font-size: 1rem;
+    line-height: 1.5;
+    max-width: 800px;
+}
+
+
 button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #0B3B60;
+    color: #FED03F;
     border: none;
     cursor: pointer;
     font-size: 1em;
@@ -84,12 +93,12 @@ button {
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #0B3B60;
 }
 
 #hole-pattern-container {
     margin-top: 20px;
-    background: #f9f9f9;
+    background: #e0e0e0;
     padding: 10px;
     border-radius: 5px;
     max-height: 50vh;
@@ -117,11 +126,11 @@ button:hover {
 }
 
 .hole-pattern:hover {
-    border: 2px solid yellow;
+    border: 2px solid #0B3B60;
 }
 
 .hole-pattern.selected {
-    border: 2px solid green;
+    border: 2px solid #FED03F;
 }
 
 .hole-pattern img {
@@ -197,9 +206,7 @@ button:hover {
 }
 
 .logo-container {
-    position: absolute;
-    left: 20px;
-    top: 20%;
+    flex: 0 0 auto; /* Ensure the logo container doesn't grow or shrink */
     
 }
 
@@ -210,7 +217,7 @@ button:hover {
 
 #result-container {
     display: none; /* Hidden by default and made visible after generation */
-    background-color: #f0f0f0; /* Light grey background */
+    background-color: #e0e0e0; /* Light grey background */
     border-radius: 10px;       /* Rounded corners */
     padding: 20px;             /* Spacing inside the box */
     margin-top: 20px;          /* Spacing above the box */
@@ -233,7 +240,7 @@ button:hover {
     left: 50%;
     transform: translateX(-50%);
     background-color: #4CAF50;
-    color: white;
+    color: #e0e0e0;
     border: none;
     cursor: pointer;
     border-radius: 5px;
@@ -246,3 +253,21 @@ button:hover {
     background-color: #45a049;
 }
 
+.header-content {
+    flex: 1; /* Take up available space */
+    text-align: center;
+    padding: 0 20px; /* Add some spacing */
+}
+
+.image-container {
+    flex: 0 0 auto; /* Prevent the image container from growing */
+    display: flex;
+    justify-content: flex-end;
+}
+
+.side-image {
+    max-width: 150px; /* Adjust the size as needed */
+    height: auto;
+    object-fit: contain;
+    margin-left: 10px; /* Space between the image and content */
+}
