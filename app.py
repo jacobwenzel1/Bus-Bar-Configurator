@@ -4,8 +4,8 @@ from flask import Flask, render_template, request, jsonify
 app = Flask(__name__)
 
 # Load the Excel data into pandas DataFrame
-options_df = pd.read_excel('options.xlsx', sheet_name='options')  # Adjust sheet name if necessary
-images_df = pd.read_excel('images.xlsx', sheet_name='images')  # Adjust sheet name if necessary
+options_df = pd.read_excel('options.xlsx', sheet_name='options')  
+images_df = pd.read_excel('images.xlsx', sheet_name='images')  
 
 # Clean column names to remove any extra spaces or special characters
 images_df.columns = images_df.columns.str.strip()

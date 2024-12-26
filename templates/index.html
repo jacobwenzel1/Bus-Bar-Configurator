@@ -6,64 +6,47 @@
     <title>Alltec Bus Bar Configurator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<header>
 <body>
-    <div class="logo-container">
-        <img src="{{ url_for('static', filename='images/Alltec-A.png') }}" alt="Alltec Company Logo" class="company-logo">
-    </div>
-    <h1 class="page-title">Alltec Bus Bar Configurator</h1>
-    </body>
-</header>
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/Alltec-A.png') }}" alt="Alltec Company Logo" class="company-logo">
+        </div>
+        <h1 class="page-title">Alltec Bus Bar Configurator</h1>
+    </header>
 
     <div class="container">
         <div class="columns">
             <!-- Left Column: Form -->
             <div class="left-column">
                 <form id="options-form">
-                    <label for="material_finish">Material & Finish:
-                        <span class="info-icon" data-tooltip="C = Copper, CT = Copper Tinned, GS = Galvanized Steel">
-                            <img src="{{ url_for('static', filename='images/information-icon.png') }}" alt="Info" width="16" height="16">
-                    </label>
+                    <label for="material_finish">Material & Finish:</label>
                     <select id="material_finish" name="material_finish">
                         {% for option in options['material_finish'] %}
                             <option value="{{ option }}">{{ option }}</option>
                         {% endfor %}
                     </select>
 
-                    <label for="width">Width:
-                        <span class="info-icon" data-tooltip="Select the width in inches">
-                            <img src="{{ url_for('static', filename='images/information-icon.png') }}" alt="Info" width="16" height="16">
-                        </span>
-                    </label>
+                    <label for="width">Width:</label>
                     <select id="width" name="width">
                         <option value="" disabled selected>-- Select a width --</option>
                         {% for option in options['width'] %}
                             <option value="{{ option }}">{{ option }}</option>
                         {% endfor %}
                     </select>
-                    
 
-                    <label for="length">Length:
-                        <span class="info-icon" data-tooltip="Select the length in inches">
-                            <img src="{{ url_for('static', filename='images/information-icon.png') }}" alt="Info" width="16" height="16">
-                    </label>
+                    <label for="length">Length:</label>
                     <select id="length" name="length">
                         {% for option in options['length'] %}
                             <option value="{{ option }}">{{ option }}</option>
                         {% endfor %}
                     </select>
 
-                    <label for="insulation_bracket">Insulation & Bracket:
-                        <span class="info-icon" data-tooltip="S = Small, M = Medium, L, = Large, X = Extra Large, P, Small Round (Pipe), R = Large Round, C = Clamp">
-                            <img src="{{ url_for('static', filename='images/information-icon.png') }}" alt="Info" width="16" height="16">
-                    </label>
+                    <label for="insulation_bracket">Insulation & Bracket:</label>
                     <select id="insulation_bracket" name="insulation_bracket">
                         {% for option in options['insulation_bracket'] %}
                             <option value="{{ option }}">{{ option }}</option>
                         {% endfor %}
                     </select>
-
-                    
 
                     <button type="submit">Generate Part Number</button>
                 </form>
@@ -87,13 +70,7 @@
         </div>
     </div>
 
-    <!-- Modal for Enlarged Image -->
-    <div id="enlarge-modal" class="enlarged-overlay" onclick="this.style.display='none'">
-        <img id="enlarge-modal-img" src="" alt="Enlarged image"/>
-    </div>
-
     <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         const holePatternsContainer = document.getElementById('hole-patterns');
         let selectedHolePattern = '';
@@ -101,7 +78,13 @@
         document.getElementById('width').addEventListener('change', function () {
             const selectedWidth = this.value;
 
-            if (!selectedWidth) return; // If placeholder is selected, do nothing
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('part-number').innerText = '';
+            const holeImage = document.getElementById('hole-image');
+            holeImage.src = '';
+            holeImage.style.display = 'none';
+
+            if (!selectedWidth) return;
 
             holePatternsContainer.innerHTML = '<p>Loading hole patterns...</p>';
             document.getElementById('hole-pattern-container').style.display = 'block';
@@ -128,27 +111,11 @@
                     `;
                 }
 
-                // Add event listener for radio selection
                 document.querySelectorAll('input[name="hole_pattern"]').forEach(radio => {
-                    radio.addEventListener('change', function() {
+                    radio.addEventListener('change', function () {
                         selectedHolePattern = this.value;
-                        // Highlight selected pattern
                         document.querySelectorAll('.hole-pattern').forEach(el => el.classList.remove('selected'));
                         this.closest('label').querySelector('.hole-pattern').classList.add('selected');
-                    });
-                });
-
-                // Add click event for enlargement
-                document.querySelectorAll('.hole-pattern').forEach(element => {
-                    element.addEventListener('click', function(e) {
-                        const img = this.querySelector('img');
-                        if (img) {
-                            const modal = document.getElementById('enlarge-modal');
-                            const modalImg = document.getElementById('enlarge-modal-img');
-                            modalImg.src = img.src;
-                            modal.style.display = 'flex';
-                            e.stopPropagation();
-                        }
                     });
                 });
             })
@@ -165,37 +132,36 @@
             const width = document.getElementById('width').value;
             const length = document.getElementById('length').value;
             const insulation_bracket = document.getElementById('insulation_bracket').value;
-    
+
             if (!selectedHolePattern) {
                 alert('Please select a hole pattern.');
                 return;
             }
 
             fetch('/generate_part_number', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `material_finish=${material_finish}&width=${width}&length=${length}&hole_pattern=${selectedHolePattern}&insulation_bracket=${insulation_bracket}`
-})
-.then(response => response.json())
-.then(data => {
-    document.getElementById('part-number').innerText = data.part_number;
-    const holeImage = document.getElementById('hole-image');
-    holeImage.src = data.hole_image;
-    holeImage.style.display = 'block';
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `material_finish=${material_finish}&width=${width}&length=${length}&hole_pattern=${selectedHolePattern}&insulation_bracket=${insulation_bracket}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('part-number').innerText = data.part_number;
+                const holeImage = document.getElementById('hole-image');
+                holeImage.src = data.hole_image;
+                holeImage.style.display = 'block';
 
-    // Show the result section now that we have a generated part number
-    document.getElementById('result-container').style.display = 'block';
+                document.getElementById('result-container').style.display = 'block';
 
-    // Clear the displayed hole patterns now that we have a final result
-    holePatternsContainer.innerHTML = '';
-    selectedHolePattern = '';
-    document.getElementById('hole-pattern-container').style.display = 'none';
-})
-.catch(error => {
-    console.error('Error generating part number:', error);
-});
+                // Clear and hide the hole patterns container
+                holePatternsContainer.innerHTML = '';
+                document.getElementById('hole-pattern-container').style.display = 'none';
+                selectedHolePattern = '';
+            })
+            .catch(error => {
+                console.error('Error generating part number:', error);
+            });
         });
     </script>
 </body>
